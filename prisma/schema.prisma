@@ -1,0 +1,99 @@
+// Prisma Schema for Waste Management System
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ─────────────────────────────────────────────
+// Master Data: Registered collection areas
+// ─────────────────────────────────────────────
+model MasterArea {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  latitude  Float
+  longitude Float
+
+  // Relations
+  predictionLogs PredictionLog[]
+  crowdPermits   CrowdPermit[]
+
+  @@map("master_areas")
+}
+
+// ─────────────────────────────────────────────
+// Prediction Log: AI prediction audit trail
+// ─────────────────────────────────────────────
+model PredictionLog {
+  id               Int      @id @default(autoincrement())
+  areaId           Int
+  prediction_date  DateTime
+  volume_ton       Float
+  confidence_score Float
+  risk_status      String
+  created_at       DateTime @default(now())
+
+  // Relations
+  area MasterArea @relation(fields: [areaId], references: [id])
+
+  @@index([areaId])
+  @@map("prediction_logs")
+}
+
+// ─────────────────────────────────────────────
+// TPA Facility: Landfill/processing capacity
+// ─────────────────────────────────────────────
+model TpaFacility {
+  id               Int    @id @default(autoincrement())
+  name             String
+  max_capacity_ton Float
+  current_load_ton Float
+
+  @@map("tpa_facilities")
+}
+
+// ─────────────────────────────────────────────
+// Crowd Permit: Event-based waste surge permits
+// ─────────────────────────────────────────────
+model CrowdPermit {
+  id              Int      @id @default(autoincrement())
+  areaId          Int
+  event_name      String
+  event_date      DateTime
+  estimated_crowd Int
+  status          String   @default("PENDING")
+
+  // Relations
+  area MasterArea @relation(fields: [areaId], references: [id])
+
+  @@index([areaId])
+  @@map("crowd_permits")
+}
+
+// ─────────────────────────────────────────────
+// Fleet Inventory: Available truck fleet
+// ─────────────────────────────────────────────
+model FleetInventory {
+  id                   Int    @id @default(autoincrement())
+  truck_type           String
+  total_units          Int
+  ready_units          Int
+  capacity_per_truck_ton Float
+
+  @@map("fleet_inventories")
+}
+
+// ─────────────────────────────────────────────
+// Operational Params: System-wide configuration
+// ─────────────────────────────────────────────
+model OperationalParam {
+  param_key   String @id
+  param_value Float
+
+  @@map("operational_params")
+}
