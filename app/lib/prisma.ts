@@ -7,11 +7,13 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 function createPrismaClient(): PrismaClient {
   const adapter = new PrismaMariaDb({
     host: process.env.DB_HOST ?? "localhost",
-    port: Number(process.env.DB_PORT ?? 3306),
+    port: Number(process.env.DB_PORT ?? 4000),
     user: process.env.DB_USER ?? "root",
-    password: process.env.DB_PASSWORD ?? "password",
+    password: process.env.DB_PASSWORD ?? "",
     database: process.env.DB_NAME ?? "waste_management_db",
-    connectionLimit: 5,
+    connectionLimit: 30,
+    connectTimeout: 20000,
+    ssl: true
   });
 
   return new PrismaClient({ adapter });

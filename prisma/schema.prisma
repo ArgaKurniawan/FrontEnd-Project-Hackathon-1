@@ -23,7 +23,7 @@ model MasterArea {
   predictionLogs PredictionLog[]
   crowdPermits   CrowdPermit[]
 
-  @@map("master_areas")
+  @@index([name])
 }
 
 // ─────────────────────────────────────────────
@@ -42,7 +42,7 @@ model PredictionLog {
   area MasterArea @relation(fields: [areaId], references: [id])
 
   @@index([areaId])
-  @@map("prediction_logs")
+
 }
 
 // ─────────────────────────────────────────────
@@ -54,7 +54,7 @@ model TpaFacility {
   max_capacity_ton Float
   current_load_ton Float
 
-  @@map("tpa_facilities")
+
 }
 
 // ─────────────────────────────────────────────
@@ -72,7 +72,7 @@ model CrowdPermit {
   area MasterArea @relation(fields: [areaId], references: [id])
 
   @@index([areaId])
-  @@map("crowd_permits")
+
 }
 
 // ─────────────────────────────────────────────
@@ -85,7 +85,7 @@ model FleetInventory {
   ready_units          Int
   capacity_per_truck_ton Float
 
-  @@map("fleet_inventories")
+
 }
 
 // ─────────────────────────────────────────────
@@ -95,5 +95,5 @@ model OperationalParam {
   param_key   String @id
   param_value Float
 
-  @@map("operational_params")
+
 }
