@@ -780,6 +780,26 @@ body {
   animation: pulse-marker 3s ease-in-out infinite;
 }
 
+/* Glowing dot marker animations */
+@keyframes marker-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 3px #2dd4a840, 0 0 12px 4px #2dd4a870, 0 0 28px 6px #2dd4a820;
+  }
+  50% {
+    box-shadow: 0 0 0 5px #2dd4a860, 0 0 20px 8px #2dd4a8a0, 0 0 40px 12px #2dd4a840;
+  }
+}
+@keyframes marker-ring-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
 /* ─── Heatmap ─────────────────────────────────────────────────────── */
 .heatmap-grid {
   display: grid;
