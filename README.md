@@ -1,6 +1,6 @@
 # Waste Management API & Dashboard
 
-A comprehensive waste management solution built for the Hackathon Sampah. This project features a modern, interactive dashboard to monitor waste generation, manage fleet operations, and predict future waste volumes using AI integration.
+A comprehensive waste management solution built for the AI Open Innovation Challenge 2026. This project features a modern, interactive dashboard to monitor waste generation, manage fleet operations, and predict future waste volumes using AI integration.
 
 ## 🌟 Features
 
