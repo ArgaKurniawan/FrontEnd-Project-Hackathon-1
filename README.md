@@ -9,7 +9,6 @@ A comprehensive waste management solution built for the Hackathon Sampah. This p
 - **AI-Powered Predictions:** Integration with external AI APIs to forecast waste volumes, confidence scores, and risk status.
 - **News Integration:** Fetches and displays the latest news regarding waste management operations.
 - **Fleet & TPA Management:** Tracks garbage truck inventory and landfill (TPA) capacities.
-- **Feature-Based Architecture:** Modular codebase for enhanced scalability and maintainability.
 
 ## 💻 Tech Stack
 
