@@ -91,6 +91,3 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `/prisma` - Database schema and connection configurations.
 - `/services` - External API integration and business logic services.
 
-## 🏆 Hackathon Context
-
-This project is developed as a scalable, feature-rich submission for the Hackathon Sampah, demonstrating the transition from monolithic code to a modular, feature-based architecture capable of predicting and managing urban waste effectively.
