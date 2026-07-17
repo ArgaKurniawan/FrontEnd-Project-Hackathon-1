@@ -15,23 +15,6 @@ export const fetchAreas = async () => {
   }
 };
 
-export const fetchWasteDashboardData = async (locationName: string = "JIS", visitorCount: number = 50000) => {
-  const res = await fetch("/api/waste", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ locationName, visitor_count: visitorCount }),
-    cache: "no-store",
-  });
-  
-  if (!res.ok) throw new Error("Gagal mengambil data dari server");
-  
-  const result = await res.json();
-  if (result.status === "success") {
-    return result;
-  } else {
-    throw new Error(result.message || "Error tidak diketahui");
-  }
-};
 
 export const fetchPrediction = async (payload: any) => {
   // Map frontend payload keys to what /api/waste expects
@@ -67,23 +50,6 @@ export const fetchPrediction = async (payload: any) => {
   }
 };
 
-export const fetchAnalyticsData = async () => {
-  const res = await fetch("/api/analytics", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-  });
-  
-  if (!res.ok) throw new Error("Gagal mengambil data analytics dari server");
-  
-  const result = await res.json();
-  if (result.status === "success") {
-    return result.data;
-  } else {
-    throw new Error(result.message || "Error tidak diketahui");
-  }
-};
-
 export const fetchAutopilotData = async () => {
   const res = await fetch("/api/autopilot", {
     method: "GET",
@@ -97,39 +63,6 @@ export const fetchAutopilotData = async () => {
   return result; // return the whole result so we can check status/data in the component
 };
 
-export const fetchLatestDashboardData = async () => {
-  const res = await fetch("/api/dashboard", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-  });
-  
-  if (!res.ok) throw new Error("Gagal mengambil data dashboard dari database");
-  
-  const result = await res.json();
-  if (result.status === "success") {
-    return result;
-  } else {
-    throw new Error(result.message || "Error tidak diketahui");
-  }
-};
-
-export const fetchFleetData = async () => {
-  const res = await fetch("/api/fleet", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-  });
-  
-  if (!res.ok) throw new Error("Gagal mengambil data armada dari server");
-  
-  const result = await res.json();
-  if (result.status === "success") {
-    return result.data;
-  } else {
-    throw new Error(result.message || "Error tidak diketahui");
-  }
-};
 
 export const fetchAllReports = async () => {
   const res = await fetch("/api/reports", {

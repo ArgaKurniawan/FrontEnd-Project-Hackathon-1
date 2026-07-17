@@ -54,66 +54,13 @@ export interface PredictResponse {
   all_results?: any[];         // all forecast days from external API
   logistics?: LogisticsPlan;
   message?: string;
-  source: "api" | "mock";
+  source: "api";
 }
 
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
-}
-
-// ─── Constants ───────────────────────────────────────────────────────
-
-/** SIPSN 2025 waste generation rate: ~0.7 kg per person per day */
-const WASTE_RATE_KG_PER_PERSON = 0.7;
-/** SIPSN 2025 composition: 51% organic / food waste */
-const FOOD_WASTE_RATIO = 0.51;
-/** SIPSN 2025 composition: 18% plastic */
-const PLASTIC_RATIO = 0.18;
-/** Truck payload capacity in tons */
-const TRUCK_CAPACITY_TON = 8;
-/** Staff required per truck */
-const STAFF_PER_TRUCK = 3;
-/** Standard shift duration in hours */
-const SHIFT_HOURS = 8;
-
-// ─── Mock Prediction Engine ──────────────────────────────────────────
-
-function generateMockPrediction(payload: PredictPayload): WastePrediction {
-  const visitorCount = payload.visitor_count ?? 15000; // default baseline visitors if undefined
-
-  const weight_kg = visitorCount * WASTE_RATE_KG_PER_PERSON;
-  const total_volume_ton = parseFloat((weight_kg / 1000).toFixed(2));
-  const food_waste_ton = parseFloat((total_volume_ton * FOOD_WASTE_RATIO).toFixed(2));
-  const plastic_ton = parseFloat((total_volume_ton * PLASTIC_RATIO).toFixed(2));
-  const paper_ton = parseFloat((total_volume_ton * 0.12).toFixed(2));
-  const glass_ton = parseFloat((total_volume_ton * 0.04).toFixed(2));
-  const metal_ton = parseFloat((total_volume_ton * 0.02).toFixed(2));
-  const textile_ton = parseFloat((total_volume_ton * 0.05).toFixed(2));
-  const other_ton = parseFloat((total_volume_ton * 0.08).toFixed(2));
-  
-  const recommended_trucks = Math.max(1, Math.ceil(total_volume_ton / TRUCK_CAPACITY_TON));
-  const calculated_staff = recommended_trucks * STAFF_PER_TRUCK;
-  const man_hours = calculated_staff * SHIFT_HOURS;
-
-  return {
-    total_volume_ton,
-    organic_waste_ton: food_waste_ton,
-    plastic_waste_ton: plastic_ton,
-    paper_waste_ton: paper_ton,
-    glass_waste_ton: glass_ton,
-    metal_waste_ton: metal_ton,
-    textile_waste_ton: textile_ton,
-    other_waste_ton: other_ton,
-    food_waste_ton,
-    plastic_ton,
-    recommended_trucks,
-    calculated_staff,
-    man_hours,
-    weight_kg: parseFloat(weight_kg.toFixed(2)),
-    confidence_score: 0.85,
-  };
 }
 
 // ─── Service ─────────────────────────────────────────────────────────
@@ -139,9 +86,8 @@ class WasteService {
   /**
    * Predict waste volume for a given location and visitor count.
    *
-   * Attempts to call the external AI API first. If the API is not
-   * configured, unreachable, or responds with a 500 error, falls back
-   * to a deterministic mock calculation based on SIPSN 2025 standards.
+   * Calls the external AI API. Throws an error if the API is unreachable
+   * or returns a 500 status code.
    */
   async predict(payload: PredictPayload): Promise<PredictResponse> {
     const baseUrl = this.getBaseUrl();
@@ -172,14 +118,7 @@ class WasteService {
         });
 
         if (response.status >= 500) {
-          console.warn(
-            `[WasteService] External API returned ${response.status}. Falling back to mock prediction.`
-          );
-          return {
-            success: true,
-            prediction: generateMockPrediction(payload),
-            source: "mock",
-          };
+          throw new Error(`Server AI bermasalah (Error ${response.status}). Mohon coba lagi nanti.`);
         }
 
         if (!response.ok) {
@@ -194,7 +133,7 @@ class WasteService {
         const logistics = data?.logistics_plan;
 
         if (!result) {
-           throw new Error("Invalid response format from API");
+          throw new Error("Invalid response format from API");
         }
 
         return {
@@ -225,19 +164,11 @@ class WasteService {
           source: "api",
         };
       } catch (error) {
-        console.warn(
-          `[WasteService] External API call failed. Falling back to mock prediction.`,
-          error instanceof Error ? error.message : error
-        );
+        throw new Error(`Gagal terhubung ke Layanan AI Prediksi: ${error instanceof Error ? error.message : "Koneksi terputus"}`);
       }
     }
 
-    // Fallback: deterministic mock
-    return {
-      success: true,
-      prediction: generateMockPrediction(payload),
-      source: "mock",
-    };
+    throw new Error("API URL tidak dikonfigurasi.");
   }
 
   /**

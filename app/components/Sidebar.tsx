@@ -13,8 +13,8 @@ import {
 
 const navItems = [
   { href: "/", label: "Dasbor", icon: LayoutDashboard },
-  { href: "/analysis", label: "Analisis", icon: BarChart3 },
-  { href: "/operations", label: "Operasional", icon: Users },
+  { href: "/analysis", label: "Autopilot", icon: BarChart3 },
+  { href: "/operations", label: "Berita", icon: Users },
 ];
 
 export default function Sidebar() {
@@ -93,6 +93,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               style={{
                 display: "flex",
                 alignItems: "center",

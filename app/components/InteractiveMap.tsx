@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   MapPin,
   AlertTriangle,
@@ -391,13 +392,13 @@ export default function InteractiveMap({ onSelectLocation, selectedLocation }: I
         <RefreshCw size={14} className={isLoading ? "map-spin" : ""} />
       </button>
 
-      {/* Weather Overlay */}
-      {selectedLocation && weatherData && showWeather && (
+      {/* Weather Overlay using Portal to ensure it is fixed to the viewport */}
+      {selectedLocation && weatherData && showWeather && typeof document !== "undefined" && createPortal(
         <div style={{
-          position: "absolute",
-          bottom: 20,
-          right: 20,
-          zIndex: 1000,
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          zIndex: 9999,
           background: "rgba(15, 23, 42, 0.9)",
           border: "1px solid rgba(51, 65, 85, 0.8)",
           borderRadius: "var(--radius-lg)",
@@ -414,7 +415,7 @@ export default function InteractiveMap({ onSelectLocation, selectedLocation }: I
               <span style={{ fontSize: 11, color: "var(--accent-green)", fontWeight: 600, background: "var(--accent-green-dim)", padding: "2px 6px", borderRadius: 4 }}>
                 {selectedLocation}
               </span>
-              <button 
+              <button
                 onClick={() => setShowWeather(false)}
                 style={{
                   background: "none",
@@ -435,50 +436,87 @@ export default function InteractiveMap({ onSelectLocation, selectedLocation }: I
               </button>
             </div>
           </div>
-          
+
           {isWeatherLoading ? (
             <div style={{ padding: "20px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 12 }}>Memuat cuaca...</div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {weatherData.time?.slice(0, 7).map((time: string, idx: number) => {
-                const date = new Date(time);
-                const dayName = date.toLocaleDateString("id-ID", { weekday: "short" });
-                const maxTemp = weatherData.temperature_2m_max[idx];
-                const minTemp = weatherData.temperature_2m_min[idx];
-                const code = weatherData.weathercode[idx];
-                const rain = weatherData.precipitation_sum[idx];
+          ) : (() => {
+            const rains = weatherData.precipitation_sum?.slice(0, 7) || [];
+            const totalRain = rains.reduce((a: number, b: number) => a + b, 0);
+            const avgRain = totalRain / 7;
+            const isWet = totalRain > 20;
 
-                return (
-                  <div key={idx} style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "6px 10px",
-                    background: "rgba(255,255,255,0.03)",
-                    borderRadius: 6,
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, width: 85 }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 600, width: 35 }}>{dayName}</span>
-                      {getWeatherIcon(code)}
-                    </div>
-                    <div style={{ flex: 1, color: "var(--text-primary)", fontSize: 11, textAlign: "left" }}>
-                      {getWeatherDesc(code)}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, width: 85, justifyContent: "flex-end" }}>
-                      {rain > 0 && (
-                        <span style={{ color: "#38bdf8", fontSize: 10 }}>{rain}mm</span>
-                      )}
-                      <div style={{ display: "flex", gap: 4, fontSize: 11, fontWeight: 600 }}>
-                        <span style={{ color: "#f8fafc" }}>{Math.round(maxTemp)}°</span>
-                        <span style={{ color: "var(--text-muted)" }}>{Math.round(minTemp)}°</span>
-                      </div>
+            return (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {/* ── Summary Cuaca ── */}
+                <div style={{
+                  background: isWet ? "rgba(56, 189, 248, 0.1)" : "rgba(250, 204, 21, 0.1)",
+                  border: `1px solid ${isWet ? "rgba(56, 189, 248, 0.3)" : "rgba(250, 204, 21, 0.3)"}`,
+                  borderRadius: 6,
+                  padding: "10px 12px",
+                  marginBottom: 4,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700 }}>Summary 7 Hari</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginTop: 2 }}>
+                      Total: {totalRain.toFixed(1)}mm <span style={{ color: "var(--text-muted)", margin: "0 4px" }}>•</span> Avg: {avgRain.toFixed(1)}mm/hr
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  <div style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: isWet ? "#38bdf8" : "#facc15",
+                    background: isWet ? "rgba(56, 189, 248, 0.2)" : "rgba(250, 204, 21, 0.2)",
+                    padding: "4px 8px",
+                    borderRadius: 4
+                  }}>
+                    {isWet ? "BASAH" : "KERING"}
+                  </div>
+                </div>
+
+                {weatherData.time?.slice(0, 7).map((time: string, idx: number) => {
+                  const date = new Date(time);
+                  const dayName = date.toLocaleDateString("id-ID", { weekday: "short" });
+                  const maxTemp = weatherData.temperature_2m_max[idx];
+                  const minTemp = weatherData.temperature_2m_min[idx];
+                  const code = weatherData.weathercode[idx];
+                  const rain = weatherData.precipitation_sum[idx];
+
+                  return (
+                    <div key={idx} style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "6px 10px",
+                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: 6,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, width: 85 }}>
+                        <span style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 600, width: 35 }}>{dayName}</span>
+                        {getWeatherIcon(code)}
+                      </div>
+                      <div style={{ flex: 1, color: "var(--text-primary)", fontSize: 11, textAlign: "left" }}>
+                        {getWeatherDesc(code)}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, width: 85, justifyContent: "flex-end" }}>
+                        {rain > 0 && (
+                          <span style={{ color: "#38bdf8", fontSize: 10 }}>{rain}mm</span>
+                        )}
+                        <div style={{ display: "flex", gap: 4, fontSize: 11, fontWeight: 600 }}>
+                          <span style={{ color: "#f8fafc" }}>{Math.round(maxTemp)}°</span>
+                          <span style={{ color: "var(--text-muted)" }}>{Math.round(minTemp)}°</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>,
+        document.body
       )}
     </div>
   );
