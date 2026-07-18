@@ -4,7 +4,7 @@ A comprehensive waste management solution built for the AI Open Innovation Chall
 
 ## 🌟 Features
 
-- **Autopilot Operations Dashboard:** Automated predictions based on AI-generated results, enabling proactive decision-making.
+- **Autopilot Operations Dashboard:** Automated predictions based on AI-generated results, rather than real-time monitoring, enabling proactive decision-making.
 - **Interactive Maps:** Geospatial visualization of waste areas using React-Leaflet, enriched with Open-Meteo weather forecasts and glowing marker animations.
 - **AI-Powered Predictions:** Integration with external AI APIs to forecast waste volumes, confidence scores, and risk status.
 - **News Integration:** Fetches and displays the latest news regarding waste management operations.

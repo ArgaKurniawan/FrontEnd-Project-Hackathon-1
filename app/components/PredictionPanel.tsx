@@ -76,7 +76,7 @@ export default function PredictionPanel({
         </h2>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "48px", alignItems: "start" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
         {/* Left Column — Dropdowns */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Location */}

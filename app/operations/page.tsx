@@ -69,16 +69,19 @@ export default async function OperationsPage() {
       <style dangerouslySetInnerHTML={{__html: `
         .news-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
-          margin-top: 24px;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+          gap: clamp(12px, 3vw, 24px);
+          margin-top: 16px;
+        }
+        @media (max-width: 480px) {
+          .news-grid { grid-template-columns: 1fr; }
         }
         .news-card {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: 1px solid var(--border);
           background: var(--surface-card);
           border-radius: var(--radius-lg);
-          padding: 24px;
+          padding: clamp(12px, 3vw, 18px);
           display: flex;
           flex-direction: column;
           height: 100%;
@@ -88,14 +91,14 @@ export default async function OperationsPage() {
           color: inherit;
         }
         .news-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 16px 32px rgba(45, 212, 168, 0.12);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 24px rgba(45, 212, 168, 0.10);
           border-color: rgba(45, 212, 168, 0.5);
         }
         .news-card::before {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0; height: 3px;
+          top: 0; left: 0; right: 0; height: 2px;
           background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
           opacity: 0;
           transition: opacity 0.3s ease;
@@ -106,23 +109,23 @@ export default async function OperationsPage() {
         .news-source {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          font-size: 11px;
+          gap: 4px;
+          font-size: 10px;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.04em;
           font-weight: 700;
           color: var(--accent-blue);
           background: rgba(56, 189, 248, 0.1);
-          padding: 4px 10px;
+          padding: 3px 8px;
           border-radius: 100px;
-          margin-bottom: 16px;
+          margin-bottom: 10px;
           align-self: flex-start;
         }
         .news-title {
-          font-size: 18px;
+          font-size: clamp(12px, 3vw, 15px);
           font-weight: 700;
           color: var(--text-heading);
-          margin: 0 0 12px 0;
+          margin: 0 0 8px 0;
           line-height: 1.4;
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -130,9 +133,9 @@ export default async function OperationsPage() {
           overflow: hidden;
         }
         .news-summary {
-          font-size: 14px;
+          font-size: clamp(11px, 2.5vw, 13px);
           color: var(--text-secondary);
-          line-height: 1.6;
+          line-height: 1.55;
           flex-grow: 1;
           display: -webkit-box;
           -webkit-line-clamp: 3;
@@ -143,15 +146,15 @@ export default async function OperationsPage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-top: 20px;
-          padding-top: 16px;
+          margin-top: 14px;
+          padding-top: 12px;
           border-top: 1px solid var(--border);
-          font-size: 12px;
+          font-size: 11px;
           color: var(--text-muted);
         }
         .news-icon-wrapper {
-          width: 36px;
-          height: 36px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
           background: rgba(45, 212, 168, 0.1);
           display: flex;
@@ -159,6 +162,7 @@ export default async function OperationsPage() {
           justify-content: center;
           color: var(--accent-green);
           transition: all 0.3s ease;
+          flex-shrink: 0;
         }
         .news-card:hover .news-icon-wrapper {
           background: var(--accent-green);
@@ -168,14 +172,14 @@ export default async function OperationsPage() {
       `}} />
 
       {/* Header */}
-      <div className="page-header animate-fade-in" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-        <div>
-          <h1 style={{ color: "var(--accent-green)" }}>Berita & Update Operasional</h1>
-          <p>Informasi terbaru seputar manajemen operasional dan lingkungan.</p>
+      <div className="page-header animate-fade-in" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 10 }}>
+        <div style={{ minWidth: 0 }}>
+          <h1 style={{ color: "var(--accent-green)", fontSize: "clamp(15px, 4vw, 20px)", margin: 0 }}>Berita & Update Operasional</h1>
+          <p style={{ fontSize: "clamp(11px, 2.5vw, 12px)", margin: "4px 0 0" }}>Informasi terbaru seputar manajemen operasional dan lingkungan.</p>
         </div>
-        <div style={{ padding: "8px 16px", background: "rgba(45, 212, 168, 0.1)", borderRadius: "var(--radius-md)", color: "var(--accent-green)", display: "flex", alignItems: "center", gap: 8, fontWeight: 600, fontSize: 13 }}>
-          <Newspaper size={16} />
-          {news.length} Berita Terbaru
+        <div style={{ padding: "4px 10px", background: "rgba(45, 212, 168, 0.1)", borderRadius: "var(--radius-md)", color: "var(--accent-green)", display: "flex", alignItems: "center", gap: 6, fontWeight: 600, fontSize: 11, whiteSpace: "nowrap", flexShrink: 0 }}>
+          <Newspaper size={13} />
+          {news.length} Berita
         </div>
       </div>
 
@@ -234,12 +238,12 @@ export default async function OperationsPage() {
                 </div>
                 
                 <div className="news-footer">
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <Calendar size={14} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <Calendar size={12} />
                     {displayDate || "Baru saja"}
                   </div>
                   <div className="news-icon-wrapper">
-                    <ArrowUpRight size={18} />
+                    <ArrowUpRight size={14} />
                   </div>
                 </div>
               </a>

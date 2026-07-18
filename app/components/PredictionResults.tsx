@@ -66,7 +66,7 @@ export default function PredictionResults({
     "var(--accent-green)";
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 16, marginTop: 24 }}>
+    <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr_1fr] gap-4 mt-6">
 
       {/* ── Waste Composition Breakdown ── */}
       <div className="card animate-fade-in-delay-1">

@@ -26,25 +26,9 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
-      <body
-        style={{
-          margin: 0,
-          display: "flex",
-          minHeight: "100vh",
-          background: "var(--bg-primary)",
-          fontFamily: "var(--font-sans)",
-        }}
-      >
+      <body className="m-0 flex flex-col md:flex-row min-h-screen bg-[var(--bg-primary)] font-sans">
         <Sidebar />
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: "100vh",
-            overflow: "hidden",
-          }}
-        >
+        <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
           {children}
         </div>
         <Toaster richColors position="top-right" />

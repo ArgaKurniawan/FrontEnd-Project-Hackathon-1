@@ -201,8 +201,19 @@ export default function AutopilotDashboard() {
           .mid-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 768px) {
-          .top-grid { grid-template-columns: 1fr !important; }
+          .top-grid { grid-template-columns: 1fr 1fr !important; }
           .summary-grid { grid-template-columns: 1fr 1fr !important; }
+          .metric-card { padding: 12px !important; gap: 6px; }
+          .metric-title { font-size: 11px !important; }
+          .metric-value { font-size: 18px !important; }
+          .metric-unit { font-size: 12px !important; }
+          .metric-icon { width: 28px !important; height: 28px !important; }
+          .list-item { padding: 10px 0 !important; }
+        }
+        @media (max-width: 480px) {
+          .top-grid { grid-template-columns: 1fr 1fr !important; }
+          .metric-card { padding: 10px !important; }
+          .metric-value { font-size: 16px !important; }
         }
       `}</style>
 
@@ -212,9 +223,6 @@ export default function AutopilotDashboard() {
           <Truck size={24} style={{ marginRight: '12px', color: '#4299e1' }} />
           Autopilot Operations Dashboard
         </h1>
-        <div className="badge badge-success" style={{ fontSize: '14px', padding: '6px 12px' }}>
-          <CheckCircle2 size={16} style={{ marginRight: '6px' }} /> API CONNECTED
-        </div>
       </div>
 
       {/* 2. TOP SECTION - 4 Metric Cards */}
@@ -423,10 +431,11 @@ export default function AutopilotDashboard() {
 
 const styles: Record<string, React.CSSProperties> = {
   pageContainer: {
-    padding: '20px',
+    padding: 'clamp(12px, 4vw, 20px)',
     maxWidth: '1400px',
     margin: '0 auto',
     width: '100%',
+    boxSizing: 'border-box',
     backgroundColor: '#0f172a',
     minHeight: '100vh',
     fontFamily: 'var(--font-sans)',
@@ -435,12 +444,12 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '25px',
+    marginBottom: '20px',
     flexWrap: 'wrap',
-    gap: '15px'
+    gap: '10px'
   },
   pageTitle: {
-    fontSize: '20px',
+    fontSize: 'clamp(15px, 4vw, 20px)',
     fontWeight: 700,
     color: '#f8fafc',
     margin: 0,
@@ -450,29 +459,29 @@ const styles: Record<string, React.CSSProperties> = {
   topGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '12px',
-    marginBottom: '20px'
+    gap: 'clamp(8px, 2vw, 12px)',
+    marginBottom: '16px'
   },
   midGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '20px',
-    marginBottom: '20px'
+    gap: 'clamp(12px, 3vw, 20px)',
+    marginBottom: '16px'
   },
   card: {
     backgroundColor: '#1e293b',
-    borderRadius: '15px',
-    padding: '25px',
+    borderRadius: '12px',
+    padding: 'clamp(14px, 3vw, 25px)',
     border: '1px solid rgba(255, 255, 255, 0.08)',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
   },
   cardHeader: {
-    marginBottom: '20px',
-    paddingBottom: '15px',
+    marginBottom: '14px',
+    paddingBottom: '12px',
     borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
   },
   cardTitle: {
-    fontSize: '18px',
+    fontSize: 'clamp(13px, 3vw, 18px)',
     fontWeight: 700,
     color: '#f8fafc',
     margin: 0,
@@ -482,22 +491,22 @@ const styles: Record<string, React.CSSProperties> = {
   summaryGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '20px',
+    gap: 'clamp(10px, 2vw, 20px)',
   },
   summaryItem: {
     backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    padding: '15px',
+    padding: 'clamp(10px, 2vw, 15px)',
     borderRadius: '10px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
   },
   summaryLabel: {
-    fontSize: '13px',
+    fontSize: 'clamp(11px, 2vw, 13px)',
     fontWeight: 600,
     color: '#a0aec0',
-    marginBottom: '8px',
+    marginBottom: '6px',
   },
   summaryValue: {
-    fontSize: '18px',
+    fontSize: 'clamp(14px, 3vw, 18px)',
     fontWeight: 700,
     color: '#e2e8f0',
   }
