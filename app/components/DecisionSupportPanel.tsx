@@ -67,11 +67,15 @@ export default function DecisionSupportPanel({ dashboard }: { dashboard: any }) 
         const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
         const dayName = isNaN(dateObj.getTime()) ? `H+${idx+1}` : days[dateObj.getDay()];
 
+        const trucks = r.recommended_trucks || Math.ceil((r.total_volume_ton || 0)/8);
+        const shifts = trucks >= 65 ? 3 : 2;
+
         return {
             day: dayName,
             fullDate: r.date || `Hari ${idx+1}`,
             volume: (r.total_volume_ton || 0).toFixed(1),
-            trucks: r.recommended_trucks || Math.ceil((r.total_volume_ton || 0)/8),
+            trucks,
+            shifts,
             status,
             color,
             bg
@@ -125,7 +129,7 @@ export default function DecisionSupportPanel({ dashboard }: { dashboard: any }) 
                <div className="stat-label">Estimasi Biaya Operasional</div>
                <div className="stat-value" style={{ fontSize: "clamp(20px, 4vw, 26px)" }}>{formatIDR(costAnalysis.totalCost)}</div>
                <div className="stat-trend" style={{ color: "var(--text-secondary)" }}>
-                   Tenaga Kerja & BBM Armada
+                   Total Anggaran Logistik & SDM
                </div>
            </div>
 
@@ -170,6 +174,9 @@ export default function DecisionSupportPanel({ dashboard }: { dashboard: any }) 
                            </div>
                            <div style={{ background: "rgba(0,0,0,0.15)", padding: "6px 0", textAlign: "center", fontSize: 11, color: "var(--text-secondary)", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
                                <Truck size={12} /> {dayData.trucks}
+                           </div>
+                           <div style={{ padding: "6px 0", textAlign: "center", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, color: dayData.color, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+                               <span>{dayData.shifts} SHIFT</span>
                            </div>
                        </div>
                    ))}
