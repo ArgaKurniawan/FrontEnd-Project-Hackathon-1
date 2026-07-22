@@ -5,6 +5,10 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 // https://www.prisma.io/docs/orm/more/help-and-troubleshooting/nextjs-help
 
 function createPrismaClient(): PrismaClient {
+  if (!process.env.DB_HOST && process.env.NODE_ENV !== "development") {
+    console.error("CRITICAL ERROR: DB_HOST is missing in environment variables. Vercel deployment will fail to connect.");
+  }
+
   const adapter = new PrismaMariaDb({
     host: process.env.DB_HOST ?? "localhost",
     port: Number(process.env.DB_PORT ?? 4000),

@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WasteIntel — Operational Hub",
+  title: "Aeterna AI - Solusi Cerdas Mencegah Penumpukan Sampah di TPS",
   description:
-    "Real-time waste management intelligence system for monitoring, analysis, operations, and risk assessment.",
+    "Waste management intelligence system for monitoring, analysis, operations, and risk assessment.",
 };
 
 export default function RootLayout({

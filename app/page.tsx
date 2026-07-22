@@ -5,6 +5,7 @@ import { useDashboard } from "@/app/hooks/useDashboard";
 import DashboardTopBar from "@/app/components/DashboardTopBar";
 import PredictionPanel from "@/app/components/PredictionPanel";
 import PredictionResults from "@/app/components/PredictionResults";
+import DecisionSupportPanel from "@/app/components/DecisionSupportPanel";
 
 const InteractiveMap = dynamic(() => import("@/app/components/InteractiveMap"), {
   ssr: false,
@@ -81,6 +82,9 @@ export default function DashboardPage() {
         recommendedTrucks={dashboard.recommendedTrucks}
         isLoading={dashboard.isLoading}
       />
+
+      {/* Decision Support Cards */}
+      <DecisionSupportPanel dashboard={dashboard} />
 
       {/* Export Button */}
       <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-start" }}>
