@@ -3,9 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { fetchAutopilotData } from "@/services/wasteService";
 import dynamic from "next/dynamic";
-import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
 import { 
   Truck, 
   Scale, 
@@ -13,16 +11,23 @@ import {
   Calendar, 
   Map, 
   MapPin, 
-  CheckCircle2, 
   Building, 
   Locate, 
-  PieChart, 
   AlertTriangle,
-  Loader2
+  Loader2,
+  Sparkles,
+  Info,
+  PieChart
 } from "lucide-react";
+
 const MapComponent = dynamic(() => import("./MapComponent"), { 
   ssr: false,
-  loading: () => <div style={{ height: "400px", background: "#1e293b", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a0aec0" }}>Memuat Peta...</div>
+  loading: () => (
+    <div style={{ height: "450px", background: "var(--bg-input)", borderRadius: "var(--radius-md)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", gap: 12 }}>
+      <Loader2 size={24} className="animate-spin" style={{ color: "var(--accent-blue)" }} />
+      <span style={{ fontSize: "13px" }}>Memuat Peta Autopilot...</span>
+    </div>
+  )
 });
 
 export default function AutopilotDashboard() {
@@ -39,7 +44,7 @@ export default function AutopilotDashboard() {
       })
       .catch((err) => {
         console.error(err);
-        setError("Gagal mengambil data. Silakan coba lagi.");
+        setError("Gagal mengambil data Autopilot. Silakan coba lagi.");
         setIsLoading(false);
       });
   }, []);
@@ -50,68 +55,44 @@ export default function AutopilotDashboard() {
     const count = locations.length;
     const totalVolume = locations.reduce((acc: number, curr: any) => acc + (curr.volume_ton || 0), 0);
     const totalTrucks = locations.reduce((acc: number, curr: any) => acc + (curr.trucks || 0), 0);
-    const avgVolume = count > 0 ? (totalVolume / count).toFixed(2) : 0;
-    const avgTrucks = count > 0 ? Math.round(totalTrucks / count) : 0;
-    const criticalCount = locations.filter((l: any) => l.status === "CRITICAL" || l.status === "DANGER").length;
+    const criticalCount = locations.filter((l: any) => l.status === "CRITICAL" || l.status === "DANGER" || l.status === "DARURAT").length;
 
     return {
       count,
-      totalVolume: totalVolume.toFixed(2),
+      totalVolume: totalVolume.toFixed(1),
       totalTrucks,
-      avgVolume,
-      avgTrucks,
-      status: criticalCount > 0 ? "WARNING" : "NORMAL",
+      status: criticalCount > 0 ? "WARNING" : "OPTIMAL",
       criticalCount
     };
   }, [data]);
 
-  // Render loading skeleton
   if (isLoading) {
     return (
       <div style={styles.pageContainer}>
-         <div style={styles.header}>
-            <h1 style={styles.pageTitle}>
-              <Truck size={24} style={{ marginRight: '10px', color: '#4299e1' }} />
-              Autopilot Operations Dashboard
-            </h1>
-         </div>
-         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', color: '#e2e8f0' }}>
-            <Loader2 size={48} className="animate-spin" />
-            <span style={{ marginLeft: '15px', fontSize: '18px' }}>Memuat Data Autopilot...</span>
+         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '60vh', color: 'var(--text-muted)', gap: 12 }}>
+            <Loader2 size={32} className="animate-spin" style={{ color: "var(--accent-blue)" }} />
+            <span style={{ fontSize: '14px' }}>Sinkronisasi Data Autopilot...</span>
          </div>
       </div>
     );
   }
 
-  // Render Error
   if (error) {
     return (
       <div style={styles.pageContainer}>
-        <div style={{ ...styles.card, borderLeft: "4px solid #f56565" }}>
-          <h2 style={{ color: "#f56565", fontSize: '20px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AlertTriangle size={24} />
-            Error
-          </h2>
-          <p style={{ color: "#e2e8f0" }}>{error}</p>
+        <div className="card" style={{ borderLeft: "4px solid var(--accent-red)", padding: "16px 20px" }}>
+          <h3 style={{ color: "var(--accent-red)", fontSize: '16px', margin: "0 0 8px 0", display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={18} /> Gagal Sinkronisasi
+          </h3>
+          <p style={{ color: "var(--text-secondary)", fontSize: "13px", margin: 0 }}>{error}</p>
         </div>
       </div>
     );
   }
 
-  // Handle empty data
-  if (!data) {
-    return (
-      <div style={styles.pageContainer}>
-         <div style={styles.card}>
-            <p style={{ color: "#a0aec0", textAlign: "center" }}>Data kosong atau tidak tersedia.</p>
-         </div>
-      </div>
-    );
-  }
+  if (!data) return null;
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
+  const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num);
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "-";
@@ -126,256 +107,129 @@ export default function AutopilotDashboard() {
   return (
     <div style={styles.pageContainer}>
       <style>{`
-        .card-hover {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-hover:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
-        }
-        .metric-card {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding: 18px !important;
-        }
-        .metric-header {
+        .list-row {
+          padding: 12px 0;
+          border-bottom: 1px solid var(--border-primary);
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .metric-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-        }
-        .metric-title {
-          font-size: 13px;
-          font-weight: 600;
-          color: #a0aec0;
-          margin: 0;
-        }
-        .metric-value {
-          font-size: 24px;
-          font-weight: 700;
-          color: #e2e8f0;
-          margin: 0;
-        }
-        .metric-unit {
-          font-size: 14px;
-          font-weight: 500;
-          color: #718096;
-        }
-        .badge {
-          display: inline-flex;
-          align-items: center;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
-        .badge-success { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
-        .badge-warning { background: rgba(236, 201, 75, 0.2); color: #ecc94b; }
-        .badge-danger { background: rgba(245, 101, 101, 0.2); color: #f56565; }
-        .badge-info { background: rgba(66, 153, 225, 0.2); color: #4299e1; }
-        
-        .list-item {
-          padding: 15px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .list-item:last-child {
+        .list-row:last-child {
           border-bottom: none;
         }
-        
-        @media (max-width: 1024px) {
-          .top-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .mid-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 768px) {
-          .top-grid { grid-template-columns: 1fr 1fr !important; }
-          .summary-grid { grid-template-columns: 1fr 1fr !important; }
-          .metric-card { padding: 12px !important; gap: 6px; }
-          .metric-title { font-size: 11px !important; }
-          .metric-value { font-size: 18px !important; }
-          .metric-unit { font-size: 12px !important; }
-          .metric-icon { width: 28px !important; height: 28px !important; }
-          .list-item { padding: 10px 0 !important; }
-        }
-        @media (max-width: 480px) {
-          .top-grid { grid-template-columns: 1fr 1fr !important; }
-          .metric-card { padding: 10px !important; }
-          .metric-value { font-size: 16px !important; }
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          display: inline-block;
+          margin-right: 6px;
         }
       `}</style>
 
-      {/* 1. HEADER SECTION */}
-      <div style={styles.header}>
-        <h1 style={styles.pageTitle}>
-          <Truck size={24} style={{ marginRight: '12px', color: '#4299e1' }} />
-          Autopilot Operations Dashboard
-        </h1>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 21, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
+            Autopilot Operations Dashboard
+          </h1>
+          <p style={{ fontSize: "12.5px", color: "var(--text-muted)", margin: "4px 0 0 0" }}>
+            Monitoring sistem pengangkutan otomatis dan telemetri data wilayah.
+          </p>
+        </div>
       </div>
 
-      {/* 2. TOP SECTION - 4 Metric Cards */}
-      <div className="top-grid" style={styles.topGrid}>
-        
-        {/* Card 1 */}
-        <div style={styles.card} className="card-hover metric-card">
-          <div className="metric-header">
-            <h3 className="metric-title">TOTAL VOLUME</h3>
-            <div className="metric-icon" style={{ background: 'rgba(66, 153, 225, 0.1)', color: '#4299e1' }}>
-              <Scale size={20} />
-            </div>
-          </div>
-          <div>
-            <h2 className="metric-value">
-              {formatNumber(data.total_volume_ton || 0)} <span className="metric-unit">Ton</span>
-            </h2>
-          </div>
-          <div>
-            <span className="badge badge-success">SAFE</span>
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div style={styles.card} className="card-hover metric-card">
-          <div className="metric-header">
-            <h3 className="metric-title">TOTAL TRUCKS</h3>
-            <div className="metric-icon" style={{ background: 'rgba(72, 187, 120, 0.1)', color: '#48bb78' }}>
-              <Truck size={20} />
-            </div>
-          </div>
-          <div>
-            <h2 className="metric-value">
-              {formatNumber(data.total_trucks || 0)} <span className="metric-unit">Armada</span>
-            </h2>
-          </div>
-          <div>
-            <span className="badge badge-success">SAFE</span>
-          </div>
-        </div>
-
-        {/* Card 3 */}
-        <div style={styles.card} className="card-hover metric-card">
-          <div className="metric-header">
-            <h3 className="metric-title">RAINY REGIONS</h3>
-            <div className="metric-icon" style={{ background: 'rgba(236, 201, 75, 0.1)', color: '#ecc94b' }}>
-              <CloudRain size={20} />
-            </div>
-          </div>
-          <div>
-            <h2 className="metric-value">
-              {formatNumber(data.rainy_regions || 0)} <span className="metric-unit">Wilayah</span>
-            </h2>
-          </div>
-          <div>
-            <span className={`badge ${data.rainy_regions > 0 ? 'badge-warning' : 'badge-success'}`}>
-              {data.rainy_regions > 0 ? 'WASPADA' : 'CERAH / SUNNY'}
-            </span>
-          </div>
-        </div>
-
-        {/* Card 4 */}
-        <div style={styles.card} className="card-hover metric-card">
-          <div className="metric-header">
-            <h3 className="metric-title">TANGGAL OPERASI</h3>
-            <div className="metric-icon" style={{ background: 'rgba(159, 122, 234, 0.1)', color: '#9f7aea' }}>
-              <Calendar size={20} />
-            </div>
-          </div>
-          <div>
-            <h2 className="metric-value" style={{ fontSize: '20px', marginTop: '4px' }}>
-              {formatDate(data.date)}
-            </h2>
-          </div>
-          <div style={{ marginTop: 'auto' }}>
-            <span className="badge badge-info">UPDATED HARI INI</span>
-          </div>
-        </div>
-
+      {/* AI Directives Card (Consolidated) */}
+      <div className="card" style={{ padding: "14px 18px", border: "1px solid rgba(56, 189, 248, 0.2)", display: "flex", alignItems: "center", gap: 12 }}>
+        <Info size={16} style={{ color: "var(--accent-blue)", flexShrink: 0 }} />
+        <span style={{ fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.45 }}>
+          {summary?.criticalCount && summary.criticalCount > 0 ? (
+            <>Sistem mendeteksi <strong style={{ color: "var(--accent-coral)" }}>{summary.criticalCount} wilayah kritis</strong>. Direkomendasikan melakukan rotasi pengangkutan sebelum potensi hujan.</>
+          ) : (
+            <>Seluruh wilayah operasional dalam status <strong style={{ color: "var(--accent-green)" }}>optimal</strong>. Kebutuhan armada berjalan sesuai jadwal rutin.</>
+          )}
+        </span>
       </div>
 
-      {/* 3. MIDDLE SECTION */}
-      <div className="mid-grid" style={styles.midGrid}>
+      {/* Main Workspace: Split Screen Map & Details */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 16 }}>
         
-        {/* Kiri: Peta */}
-        <div style={styles.card} className="card-hover">
-          <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>
-              <Map size={20} style={{ marginRight: '10px', color: '#4299e1' }} />
-              Peta Lokasi Operasi
-            </h3>
+        {/* Left Side: Map Container */}
+        <div className="card" style={{ padding: "18px" }}>
+          <div className="card-title" style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 15 }}>
+            <Map size={16} style={{ color: "var(--text-muted)" }} />
+            Peta Lokasi Operasi
           </div>
-          <div style={{ borderRadius: '10px', overflow: 'hidden', height: '400px' }}>
+          <div style={{ borderRadius: "var(--radius-sm)", overflow: "hidden", height: "450px", border: "1px solid var(--border-primary)" }}>
             <MapComponent locations={data.top_kecamatan || []} />
           </div>
         </div>
 
-        {/* Kanan: Detail */}
-        <div style={styles.card} className="card-hover">
-          <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>
-              <MapPin size={20} style={{ marginRight: '10px', color: '#f56565' }} />
-              Detail Lokasi (Top Kecamatan)
-            </h3>
+        {/* Right Side: Simple Kecamatan List */}
+        <div className="card" style={{ padding: "18px" }}>
+          <div className="card-title" style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 15 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <MapPin size={16} style={{ color: "var(--text-muted)" }} />
+              Daftar Lokasi Terpantau
+            </div>
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              {data.top_kecamatan?.length || 0} Kecamatan
+            </span>
           </div>
-          <div style={{ overflowY: 'auto', maxHeight: '400px', paddingRight: '10px' }}>
+          
+          <div style={{ overflowY: "auto", maxHeight: "450px", paddingRight: 4 }} className="no-scrollbar">
             {data.top_kecamatan && data.top_kecamatan.length > 0 ? (
               data.top_kecamatan.map((loc: any, idx: number) => {
-                let badgeClass = "badge-success";
+                let statusColor = "var(--accent-green)";
                 let s = (loc.status || "").toUpperCase();
-                if (s === "CRITICAL" || s === "DANGER") badgeClass = "badge-danger";
-                else if (s === "WARNING" || s === "WASPADA") badgeClass = "badge-warning";
+                
+                if (s === "CRITICAL" || s === "DANGER" || s === "DARURAT") {
+                  statusColor = "var(--accent-coral)";
+                } else if (s === "WARNING" || s === "WASPADA" || s === "SEDANG") {
+                  statusColor = "var(--accent-orange)";
+                }
 
                 return (
-                  <div key={idx} className="list-item">
+                  <div key={idx} className="list-row">
                     <div>
-                      <div style={{ fontSize: '16px', fontWeight: 600, color: '#e2e8f0', marginBottom: '4px' }}>
+                      <div style={{ fontSize: "14.5px", fontWeight: 600, color: "var(--text-primary)" }}>
                         {loc.location}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#a0aec0', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Building size={14} /> {loc.city}</span>
+                      <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: 2, display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Building size={11} /> {loc.city}</span>
                         {loc.latitude && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Locate size={14} /> {loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Locate size={11} /> {loc.latitude.toFixed(3)}, {loc.longitude.toFixed(3)}</span>
                         )}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#e2e8f0', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                        {loc.volume_ton}T / {loc.trucks} <Truck size={14} />
+
+                    <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                      <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
+                        {loc.volume_ton}T <span style={{ fontSize: 12, fontWeight: 400, color: "var(--text-muted)" }}>({loc.trucks} Truk)</span>
                       </div>
-                      <span className={`badge ${badgeClass}`} style={{ fontSize: '10px' }}>{loc.status}</span>
+                      <span style={{ fontSize: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center" }}>
+                        <span className="status-dot" style={{ backgroundColor: statusColor }} />
+                        {loc.status || "NORMAL"}
+                      </span>
                     </div>
                   </div>
                 );
               })
             ) : (
-              <p style={{ color: '#a0aec0', textAlign: 'center', marginTop: '20px' }}>Tidak ada data lokasi.</p>
+              <p style={{ color: "var(--text-muted)", textAlign: "center", marginTop: "40px", fontSize: 13 }}>Tidak ada data lokasi.</p>
             )}
           </div>
         </div>
 
       </div>
 
-      {/* 4. BOTTOM SECTION: Conclusion */}
+      {/* 5. BOTTOM SECTION: EXECUTIVE SUMMARY (Restored) */}
       {summary && (
-        <div style={styles.card} className="card-hover">
-          <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>
-              <PieChart size={20} style={{ marginRight: '10px', color: '#48bb78' }} />
-              Kesimpulan Data Top Kecamatan
-            </h3>
+        <div className="card" style={{ padding: "20px" }}>
+          <div className="card-title" style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8, fontSize: 15 }}>
+            <PieChart size={18} style={{ color: "var(--text-muted)" }} />
+            Kesimpulan Data Top Kecamatan
           </div>
-          <div className="summary-grid" style={styles.summaryGrid}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             
             <div style={styles.summaryItem}>
               <div style={styles.summaryLabel}>Total Kecamatan</div>
@@ -394,17 +248,17 @@ export default function AutopilotDashboard() {
             
             <div style={styles.summaryItem}>
               <div style={styles.summaryLabel}>Average Volume / Kec</div>
-              <div style={styles.summaryValue}>{summary.avgVolume} Ton</div>
+              <div style={styles.summaryValue}>{(Number(summary.totalVolume) / Math.max(1, summary.count)).toFixed(2)} Ton</div>
             </div>
             
             <div style={styles.summaryItem}>
               <div style={styles.summaryLabel}>Average Trucks / Kec</div>
-              <div style={styles.summaryValue}>{summary.avgTrucks} Armada</div>
+              <div style={styles.summaryValue}>{Math.round(summary.totalTrucks / Math.max(1, summary.count))} Armada</div>
             </div>
             
             <div style={styles.summaryItem}>
               <div style={styles.summaryLabel}>Status Operasi</div>
-              <div style={{ ...styles.summaryValue, color: summary.status === 'NORMAL' ? '#48bb78' : '#ecc94b' }}>
+              <div style={{ ...styles.summaryValue, color: summary.status === 'OPTIMAL' ? 'var(--accent-green)' : 'var(--accent-orange)' }}>
                 {summary.status}
               </div>
             </div>
@@ -416,7 +270,7 @@ export default function AutopilotDashboard() {
             
             <div style={styles.summaryItem}>
               <div style={styles.summaryLabel}>Event Today</div>
-              <div style={styles.summaryValue}>
+              <div style={{ ...styles.summaryValue, color: summary.criticalCount > 0 ? 'var(--accent-coral)' : 'var(--text-primary)' }}>
                 {summary.criticalCount > 0 ? `${summary.criticalCount} Critical` : 'None'}
               </div>
             </div>
@@ -424,90 +278,37 @@ export default function AutopilotDashboard() {
           </div>
         </div>
       )}
-      
+
     </div>
   );
 }
 
 const styles: Record<string, React.CSSProperties> = {
   pageContainer: {
-    padding: 'clamp(12px, 4vw, 20px)',
+    padding: 'clamp(14px, 4vw, 24px)',
     maxWidth: '1400px',
     margin: '0 auto',
     width: '100%',
     boxSizing: 'border-box',
-    backgroundColor: '#0f172a',
-    minHeight: '100vh',
-    fontFamily: 'var(--font-sans)',
-  },
-  header: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
-    gap: '10px'
-  },
-  pageTitle: {
-    fontSize: 'clamp(15px, 4vw, 20px)',
-    fontWeight: 700,
-    color: '#f8fafc',
-    margin: 0,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  topGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 'clamp(8px, 2vw, 12px)',
-    marginBottom: '16px'
-  },
-  midGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 'clamp(12px, 3vw, 20px)',
-    marginBottom: '16px'
-  },
-  card: {
-    backgroundColor: '#1e293b',
-    borderRadius: '12px',
-    padding: 'clamp(14px, 3vw, 25px)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
-  },
-  cardHeader: {
-    marginBottom: '14px',
-    paddingBottom: '12px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
-  },
-  cardTitle: {
-    fontSize: 'clamp(13px, 3vw, 18px)',
-    fontWeight: 700,
-    color: '#f8fafc',
-    margin: 0,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  summaryGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 'clamp(10px, 2vw, 20px)',
+    flexDirection: 'column',
+    gap: '20px'
   },
   summaryItem: {
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    padding: 'clamp(10px, 2vw, 15px)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    padding: '18px 24px',
     borderRadius: '10px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    border: '1px solid var(--border-primary)',
   },
   summaryLabel: {
-    fontSize: 'clamp(11px, 2vw, 13px)',
+    fontSize: '13px',
     fontWeight: 600,
-    color: '#a0aec0',
-    marginBottom: '6px',
+    color: 'var(--text-muted)',
+    marginBottom: '8px',
   },
   summaryValue: {
-    fontSize: 'clamp(14px, 3vw, 18px)',
+    fontSize: '18px',
     fontWeight: 700,
-    color: '#e2e8f0',
+    color: 'var(--text-primary)',
   }
 };
